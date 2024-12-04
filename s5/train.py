@@ -2,6 +2,7 @@ from functools import partial
 from jax import random
 import jax.numpy as np
 from jax.scipy.linalg import block_diag
+import pickle
 import wandb
 
 from .train_helpers import create_train_state, reduce_lr_on_plateau,\
@@ -339,3 +340,8 @@ def train(args):
 
         if count > args.early_stop_patience:
             break
+
+    filename = f"/home/groups/swl1/jsmekal/s5_weights/quick_test.pkl"
+    with open(filename, 'wb') as f:
+        pickle.dump(state.params, f)
+    print(f"Model weights saved to {filename}")
