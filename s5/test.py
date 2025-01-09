@@ -1,6 +1,5 @@
 import pickle
 from functools import partial
-from typing import Any
 
 import jax
 import jax.numpy as np
@@ -16,7 +15,6 @@ from s5.ssm_init import make_DPLR_HiPPO
 from s5.train_helpers import map_nested_fn, validate
 
 
-# Function to load weights from pickle file
 def load_weights(pickle_file):
     with open(pickle_file, "rb") as f:
         params = pickle.load(f)
@@ -96,12 +94,8 @@ def create_test_state(model_cls,
         },
         ssm_fn,
     )
-    batch_stats = variables['batch_stats']
 
-    class TrainState(train_state.TrainState):
-        batch_stats: Any
-
-    return TrainState.create(apply_fn=model.apply, params=params, tx=tx, batch_stats=batch_stats)
+    return train_state.TrainState.create(apply_fn=model.apply, params=params, tx=tx)
 
 
 def test(args):
@@ -222,9 +216,6 @@ def test(args):
                               in_dim=in_dim,
                               bsz=args.bsz,
                               seq_len=seq_len,
-                              # weight_decay=args.weight_decay,
-                              # batchnorm=args.batchnorm,
-                              # opt_config=args.opt_config,
                               ssm_lr=ssm_lr,
                               lr=lr,
                               dt_global=args.dt_global)
