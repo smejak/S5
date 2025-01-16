@@ -63,8 +63,8 @@ class StackedEncoderModel(nn.Module):
         """
         x = self.encoder(x)
         for layer in self.layers:
-            x = layer(x)
-        return x
+            x, hiddens = layer(x)
+        return x, hiddens
 
 
 def masked_meanpool(x, lengths):
@@ -154,7 +154,8 @@ class ClassificationModel(nn.Module):
         if self.padded:
             x, length = x  # input consists of data and prepadded seq lens
 
-        x = self.encoder(x, integration_timesteps)
+        x, hiddens = self.encoder(x, integration_timesteps)
+        # self.sow('intermediates', 'features', x)
         if self.mode in ["pool"]:
             # Perform mean pooling across time
             if self.padded:
@@ -172,7 +173,7 @@ class ClassificationModel(nn.Module):
             raise NotImplementedError("Mode must be in ['pool', 'last]")
 
         x = self.decoder(x)
-        return nn.log_softmax(x, axis=-1)
+        return nn.log_softmax(x, axis=-1), hiddens
 
 
 # Here we call vmap to parallelize across a batch of input sequences

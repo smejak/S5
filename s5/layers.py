@@ -63,7 +63,7 @@ class SequenceLayer(nn.Module):
         skip = x
         if self.prenorm:
             x = self.norm(x)
-        x = self.seq(x)
+        x, hiddens = self.seq(x)
 
         if self.activation in ["full_glu"]:
             x = self.drop(nn.gelu(x))
@@ -87,4 +87,4 @@ class SequenceLayer(nn.Module):
         x = skip + x
         if not self.prenorm:
             x = self.norm(x)
-        return x
+        return x, hiddens

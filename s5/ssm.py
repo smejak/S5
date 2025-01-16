@@ -83,9 +83,10 @@ def apply_ssm(Lambda_bar, B_bar, C_tilde, input_sequence, conj_sym, bidirectiona
         xs = np.concatenate((xs, xs2), axis=-1)
 
     if conj_sym:
-        return jax.vmap(lambda x: 2*(C_tilde @ x).real)(xs)
+        ys = jax.vmap(lambda x: 2*(C_tilde @ x).real)(xs)
     else:
-        return jax.vmap(lambda x: (C_tilde @ x).real)(xs)
+        ys = jax.vmap(lambda x: (C_tilde @ x).real)(xs)
+    return ys, xs
 
 
 class S5SSM(nn.Module):
@@ -235,16 +236,17 @@ class S5SSM(nn.Module):
         Returns:
             output sequence (float32): (L, H)
         """
-        ys = apply_ssm(self.Lambda_bar,
+        ys, xs = apply_ssm(self.Lambda_bar,
                        self.B_bar,
                        self.C_tilde,
                        input_sequence,
                        self.conj_sym,
                        self.bidirectional)
-
         # Add feedthrough matrix output Du;
         Du = jax.vmap(lambda u: self.D * u)(input_sequence)
-        return ys + Du
+        out = ys + Du
+        return out, xs
+
 
 
 def init_S5SSM(H,
