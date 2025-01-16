@@ -86,8 +86,9 @@ def gradient_monitoring_hook(state, batch, time_indices, state_idx=0):
         mean_gradient: Mean gradient value across specified times
     """
     # Extract SSM layer parameters (assuming first layer)
-    ssm_params = state.params['ssm'][0] if 'ssm' in state.params else state.params['layers'][0]['ssm']
+    ssm_params = state.params['encoder']['layers_0'][0] if 'ssm' in state.params else state.params['layers'][0]['ssm']
     ssm_layer = state.model.ssm[0] if hasattr(state.model, 'ssm') else state.model.layers[0].ssm
+    print("got here")
 
     # Compute gradients
     gradients = compute_hidden_gradients(
@@ -102,4 +103,4 @@ def gradient_monitoring_hook(state, batch, time_indices, state_idx=0):
 
 
 # Make gradient computation JIT-compatible
-gradient_monitoring_hook = jax.jit(gradient_monitoring_hook, static_argnames=['time_indices', 'state_idx'])
+# gradient_monitoring_hook = jax.jit(gradient_monitoring_hook, static_argnames=['time_indices', 'state_idx'])

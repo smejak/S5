@@ -227,6 +227,8 @@ class S5SSM(nn.Module):
         else:
             raise NotImplementedError("Discretization method {} not implemented".format(self.discretization))
 
+
+    # @nn.compact
     def __call__(self, input_sequence):
         """
         Compute the LxH output of the S5 SSM given an LxH input sequence
@@ -236,12 +238,15 @@ class S5SSM(nn.Module):
         Returns:
             output sequence (float32): (L, H)
         """
+
         ys, xs = apply_ssm(self.Lambda_bar,
                        self.B_bar,
                        self.C_tilde,
                        input_sequence,
                        self.conj_sym,
                        self.bidirectional)
+        # hidden_states = self.variable('intermediates', 'hidden_states', lambda s: s)
+        # hidden_states.value.append(xs)
         # Add feedthrough matrix output Du;
         Du = jax.vmap(lambda u: self.D * u)(input_sequence)
         out = ys + Du

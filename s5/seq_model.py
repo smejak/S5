@@ -181,7 +181,7 @@ BatchClassificationModel = nn.vmap(
     ClassificationModel,
     in_axes=(0, 0),
     out_axes=0,
-    variable_axes={"params": None, "dropout": None, 'batch_stats': None, "cache": 0, "prime": None},
+    variable_axes={"params": None, "dropout": None, 'batch_stats': None, "cache": 0, "prime": None, "intermediates": 0},
     split_rngs={"params": False, "dropout": True}, axis_name='batch')
 
 
