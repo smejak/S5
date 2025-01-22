@@ -62,9 +62,12 @@ class StackedEncoderModel(nn.Module):
             output sequence (float32): (L, d_model)
         """
         x = self.encoder(x)
+        hidden_list = []
         for layer in self.layers:
             x, hiddens = layer(x)
-        return x, hiddens
+            hidden_list.append(hiddens)
+        hidden_array = np.stack(hidden_list, axis=0)
+        return x, hidden_array
 
 
 def masked_meanpool(x, lengths):
