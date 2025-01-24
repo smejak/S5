@@ -40,6 +40,7 @@ class SequenceLayer(nn.Module):
         elif self.activation in ["half_glu1", "half_glu2"]:
             self.out2 = nn.Dense(self.d_model)
 
+
         if self.batchnorm:
             self.norm = nn.BatchNorm(use_running_average=not self.training,
                                      momentum=self.bn_momentum, axis_name='batch')
@@ -61,8 +62,11 @@ class SequenceLayer(nn.Module):
             output sequence (float32): (L, d_model)
         """
         skip = x
-        if self.prenorm:
+        if self.activation in ["linear"] or not self.prenorm:
+            pass
+        else:
             x = self.norm(x)
+
         x, hiddens = self.seq(x)
 
         if self.activation in ["full_glu"]:
@@ -80,11 +84,16 @@ class SequenceLayer(nn.Module):
             x = self.drop(x)
         elif self.activation in ["gelu"]:
             x = self.drop(nn.gelu(x))
+        elif self.activation in ["linear"]:
+            pass
         else:
             raise NotImplementedError(
                    "Activation: {} not implemented".format(self.activation))
 
         x = skip + x
-        if not self.prenorm:
+        if self.activation in ["linear"] or self.prenorm:
+            pass
+        else:
             x = self.norm(x)
+
         return x, hiddens
